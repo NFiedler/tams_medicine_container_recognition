@@ -408,8 +408,10 @@ void callback (const pcl::PCLPointCloud2ConstPtr& cloud_pcl2) {
   pcl::fromPCLPointCloud2 (*cloud_pcl2, *cloud);
 
   // leave if cloud is empty
-  if(cloud->size() == 0)
-    return;
+  if(cloud->size() == 0) {
+      ROS_WARN("The PointCloud is empty!");
+      return;
+  }
 
   //
   //         Extract surface transform and filter points in the region above it
@@ -488,8 +490,10 @@ void callback (const pcl::PCLPointCloud2ConstPtr& cloud_pcl2) {
     for (int i : cluster.indices)
       cluster_cloud->points.push_back (surfaceVoxels->points[i]);
 
-    if(cluster_cloud->points.size() == 0)
+    if(cluster_cloud->points.size() == 0) {
+      ROS_INFO("no points in cluster");
       continue;
+    }
 
     cluster_cloud->width = cluster_cloud->points.size();
     cluster_cloud->height = 1;
