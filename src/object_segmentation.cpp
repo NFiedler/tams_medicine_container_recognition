@@ -399,9 +399,12 @@ void callback (const pcl::PCLPointCloud2ConstPtr& cloud_pcl2) {
 
   if(cloud_time < start_time_){
     double delay = ros::Duration(start_time_ - cloud_time).toSec();
-    if(delay > 5.0)
-      ROS_ERROR_THROTTLE(3,"Object segmentation failed - Received point cloud is from %f seconds ago!", delay);
-    return;
+    if(delay > 5.0) {
+        ROS_ERROR_THROTTLE(3,
+                           "Object segmentation failed - Received point cloud is from %f seconds ago!",
+                           delay);
+        return;
+    }
   }
 
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
