@@ -422,7 +422,7 @@ void callback (const pcl::PCLPointCloud2ConstPtr& cloud_pcl2) {
   //
 
   // filter range of view
-  filterRange(0.95, cloud, *cloud_filtered);
+  filterRange(1.5, cloud, *cloud_filtered);
   if(cloud_filtered->size() == 0)
     return;
 
