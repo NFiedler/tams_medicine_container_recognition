@@ -483,6 +483,7 @@ void callback (const pcl::PCLPointCloud2ConstPtr& cloud_pcl2) {
 
   for(const pcl::PointIndices cluster : cluster_indices) {
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cluster_cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr orange_cluster_cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
     pcl::ModelCoefficients::Ptr cyl_coefs (new pcl::ModelCoefficients);
     pcl::PointIndices::Ptr cyl_inliers (new pcl::PointIndices);
@@ -498,6 +499,18 @@ void callback (const pcl::PCLPointCloud2ConstPtr& cloud_pcl2) {
     cluster_cloud->width = cluster_cloud->points.size();
     cluster_cloud->height = 1;
     cluster_cloud->is_dense = true;
+    orange_cluster_cloud->height = 1;
+    orange_cluster_cloud->is_dense = true;
+    for (const pcl::PointXYZRGB point : cluster_cloud->points) {
+        if (point.r > 180 and point.g < 230 and point.g > 100 and point.b < 130) {
+            orange_cluster_cloud->points.push_back(point);
+        }
+    }
+    orange_cluster_cloud->width = orange_cluster_cloud->points.size();
+    if (orange_cluster_cloud->width < 5) {
+        ROS_INFO("Too few orange points in cluster");
+        continue;
+    }
 
     // segment cluster as cylinder
     estimateNormals(cluster_cloud, *cloud_normals);
