@@ -511,19 +511,46 @@ void callback (const pcl::PCLPointCloud2ConstPtr& cloud_pcl2) {
         ROS_INFO("Too few orange points in cluster");
         continue;
     }
+    float min_x, min_y, min_z, max_x, max_y, max_z;
+    min_x = min_y = min_z = 100.0f;
+    max_x = max_y = max_z = -100.0f;
+
+    for (std::vector<pcl::PointXYZRGB, Eigen::aligned_allocator<pcl::PointXYZRGB>>::const_iterator point_iterator = cluster_cloud->points.begin(); point_iterator != cluster_cloud->end(); point_iterator++) {
+        if (point_iterator->x > max_x) {
+            max_x = point_iterator->x;
+        }
+        if (point_iterator->y > max_y) {
+            max_y = point_iterator->y;
+        }
+        if (point_iterator->z > max_z) {
+            max_z = point_iterator->z;
+        }
+        if (point_iterator->x < min_x) {
+            min_x = point_iterator->x;
+        }
+        if (point_iterator->y < min_y) {
+            min_y = point_iterator->y;
+        }
+        if (point_iterator->z < min_z) {
+            min_z = point_iterator->z;
+        }
+    }
 
     // segment cluster as cylinder
+    /*
     estimateNormals(cluster_cloud, *cloud_normals);
-    if(!segmentCylinder(cluster_cloud, cloud_normals, cyl_inliers, cyl_coefs))
-      continue;
-
+    if(!segmentCylinder(cluster_cloud, cloud_normals, cyl_inliers, cyl_coefs)) {
+      ROS_INFO("could not segment cylinder");
+    //  continue;
+    }
+    */
     tams_bartender_recognition::SegmentedObject object_msg;
 
     // basic object parameters
-    double x = cyl_coefs->values[0];
-    double y = cyl_coefs->values[1];
-    double z = cyl_coefs->values[2];
-    double object_radius = cyl_coefs->values[6];
+    double x = min_x + (max_x - min_x) / 2.0;
+    double y = min_y + (max_y - min_y) / 2.0;
+    double z = min_z + (max_z - min_z) / 2.0;
+    double object_radius = 0.44;
 
     // retrieve object pose in surface frame
     tf::Transform cam_to_object(tf::Quaternion::getIdentity(), tf::Vector3(x, y, z));
