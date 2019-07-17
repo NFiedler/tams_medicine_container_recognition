@@ -364,7 +364,7 @@ void extractClusters(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered
   tree->setInputCloud (cloud_filtered_);
 
   pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
-  ec.setClusterTolerance (0.06);
+  ec.setClusterTolerance (0.04);
   ec.setMinClusterSize (80);
   ec.setMaxClusterSize (5000);
   ec.setSearchMethod (tree);
