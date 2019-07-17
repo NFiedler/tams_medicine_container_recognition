@@ -39,6 +39,7 @@
 #include <tf_conversions/tf_eigen.h>
 
 #include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
 
@@ -478,8 +479,17 @@ void callback (const pcl::PCLPointCloud2ConstPtr& cloud_pcl2) {
   extractClusters(surfaceVoxels, cluster_indices);
 
   tams_bartender_recognition::SegmentedObjectArray objects;
+  visualization_msgs::MarkerArray object_markers;
   objects.header.frame_id = surface_frame_;
   objects.header.stamp = ros::Time::now();
+
+  // set the color for markers
+  std_msgs::ColorRGBA marker_orange;
+  marker_orange.a = .8;
+  marker_orange.r = 1;
+  marker_orange.g = .6;
+
+  ROS_INFO("clusters: %d", cluster_indices.size());
 
   for(const pcl::PointIndices cluster : cluster_indices) {
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cluster_cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -598,12 +608,30 @@ void callback (const pcl::PCLPointCloud2ConstPtr& cloud_pcl2) {
     {
       ROS_ERROR("Unable to extract object image from cloud!");
     }
-  }
 
+    // add the marker to the marker array
+    visualization_msgs::Marker object_marker;
+    object_marker.header = objects.header;
+    object_marker.header.frame_id = surface_frame_;
+    object_marker.id = objects.count;
+    object_marker.color = marker_orange;
+    object_marker.action = visualization_msgs::Marker::ADD;
+    object_marker.type = visualization_msgs::Marker::CYLINDER;
+    object_marker.scale.x = 0.044;
+    object_marker.scale.y = 0.044;
+    object_marker.scale.z = 0.085;
+    object_marker.pose = object_msg.pose.pose;
+    // object_marker.pose.position.x = min_x + (max_x - min_x) / 2.0;
+    // object_marker.pose.position.y = min_y + (max_y - min_y) / 2.0;
+    object_marker.pose.position.z = object_marker.scale.z / 2.0;
+    object_markers.markers.push_back(object_marker);
+  }
+  ROS_INFO("marker_count: %d", object_markers.markers.size());
   if(objects.objects.size() > 0)
   {
     objects_pub.publish(objects);
     object_image_pub.publish(objects.objects[0].image);
+    cyl_marker_pub.publish(object_markers);
   }
   else
   {
@@ -652,7 +680,7 @@ int main (int argc, char** argv)
   // Create a ROS publisher for the output point cloud
   surface_pub = nh.advertise<sensor_msgs::PointCloud2> ("/segmented_surface", 1);
   clusters_pub = nh.advertise<sensor_msgs::PointCloud2> ("/extracted_clusters", 1);
-  cyl_marker_pub = nh.advertise<visualization_msgs::Marker> ("cylinders", 1);
+  cyl_marker_pub = nh.advertise<visualization_msgs::MarkerArray> ("cylinders", 1);
   objects_pub = nh.advertise<tams_bartender_recognition::SegmentedObjectArray>("/segmented_objects", 1);
   object_image_pub = nh.advertise<sensor_msgs::Image>("/object_image", 1);
 
