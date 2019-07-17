@@ -358,15 +358,16 @@ void extractClusters(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered
 
   //cloud_filtered->is_dense = false;
   // Creating the KdTree object for the search method of the extraction
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered_(new pcl::PointCloud<pcl::PointXYZRGB>(*cloud_filtered));
   pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGB>);
-  tree->setInputCloud (cloud_filtered);
+  tree->setInputCloud (cloud_filtered_);
 
   pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> ec;
   ec.setClusterTolerance (0.06);
   ec.setMinClusterSize (80);
   ec.setMaxClusterSize (5000);
   ec.setSearchMethod (tree);
-  ec.setInputCloud (cloud_filtered);
+  ec.setInputCloud (cloud_filtered_);
   ec.extract (cluster_indices);
 
   //std::cerr << "Found " << cluster_indices.size() << " clusters" << std::endl;
@@ -376,13 +377,13 @@ void extractClusters(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered
     const pcl::PointIndices indices = cluster_indices[i];
     //std::cerr << indices.indices.size() << ' ';
     for (int j : indices.indices){
-      setColor((*cloud_filtered)[j], i);
+      setColor((*cloud_filtered_)[j], i);
     }
   }
   //std::cerr << std::endl;
 
   pcl::PCLPointCloud2 outcloud;
-  pcl::toPCLPointCloud2 (*cloud_filtered, outcloud);
+  pcl::toPCLPointCloud2 (*cloud_filtered_, outcloud);
   clusters_pub.publish (outcloud);
 }
 
