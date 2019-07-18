@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 #include <tams_bartender_msgs/DetectGlassAction.h>
-#include <tams_bartender_recognition/SegmentationSwitch.h>
+#include <tams_medicine_container_recognition/SegmentationSwitch.h>
 
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 
@@ -17,7 +17,7 @@
 #include <tf_conversions/tf_eigen.h>
 #include <apriltags2_ros/AprilTagDetectionArray.h>
 
-std::string GLASS_MESH= "package://tams_bartender_recognition/meshes/glass-binary.stl";
+std::string GLASS_MESH= "package://tams_medicine_container_recognition/meshes/glass-binary.stl";
 
 class GlassDetectionServer
 {
@@ -161,7 +161,7 @@ class GlassDetectionServer
 
     bool setSegmentationEnabled(bool enabled) {
 
-      tams_bartender_recognition::SegmentationSwitch srv;
+      tams_medicine_container_recognition::SegmentationSwitch srv;
       srv.request.enabled = enabled;
       srv.request.header.stamp = ros::Time::now();
       if (!segmentation_client_.call(srv))
@@ -304,7 +304,7 @@ class GlassDetectionServer
     camera_info_pub_ = nh_.advertise<sensor_msgs::CameraInfo>(camera_info_forward_topic, 1);
 
     // setup detection pipeline
-    segmentation_client_ = nh_.serviceClient<tams_bartender_recognition::SegmentationSwitch>("object_segmentation_switch");
+    segmentation_client_ = nh_.serviceClient<tams_medicine_container_recognition::SegmentationSwitch>("object_segmentation_switch");
     tag_detections_sub_ = nh_.subscribe("tag_detections", 1, &GlassDetectionServer::tagDetectionCallback, this);
 
     // start action server

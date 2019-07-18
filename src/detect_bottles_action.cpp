@@ -1,8 +1,8 @@
 #include <ros/ros.h>
 #include <actionlib/server/simple_action_server.h>
 #include <tams_bartender_msgs/DetectBottlesAction.h>
-#include <tams_bartender_recognition/RecognizedObject.h>
-#include <tams_bartender_recognition/SegmentationSwitch.h>
+#include <tams_medicine_container_recognition/RecognizedObject.h>
+#include <tams_medicine_container_recognition/SegmentationSwitch.h>
 
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <tf/transform_listener.h>
@@ -16,10 +16,10 @@
 
 
 
-//std::string BOTTLE_MESH = "package://tams_bartender_recognition/meshes/bottle-binary.stl";
-std::string BOTTLE_MESH = "package://tams_bartender_recognition/meshes/bottle_small.stl";
+//std::string BOTTLE_MESH = "package://tams_medicine_container_recognition/meshes/bottle-binary.stl";
+std::string BOTTLE_MESH = "package://tams_medicine_container_recognition/meshes/bottle_small.stl";
 
-std::string GLASS_MESH= "package://tams_bartender_recognition/meshes/glass-binary.stl";
+std::string GLASS_MESH= "package://tams_medicine_container_recognition/meshes/glass-binary.stl";
 
 
 class BottleActionServer
@@ -34,7 +34,7 @@ class BottleActionServer
     std::string camera_frame_;
     tf::StampedTransform surface_camera_transform_;
 
-    std::map<std::string, tams_bartender_recognition::RecognizedObject> objects_;
+    std::map<std::string, tams_medicine_container_recognition::RecognizedObject> objects_;
     std::map<std::string, int> object_count_;
     ros::ServiceClient segmentation_client_;
 
@@ -43,7 +43,7 @@ class BottleActionServer
     bool recognize_objects_ = false;
 
 
-    void object_pose_cb(const tams_bartender_recognition::RecognizedObject::ConstPtr& msg)
+    void object_pose_cb(const tams_medicine_container_recognition::RecognizedObject::ConstPtr& msg)
     {
       if(recognize_objects_) {
         objects_[msg->id] = *msg;
@@ -52,7 +52,7 @@ class BottleActionServer
     }
 
 
-    bool createCollisionObject(int i, std::string id, const tams_bartender_recognition::RecognizedObject& obj, moveit_msgs::CollisionObject& object) {
+    bool createCollisionObject(int i, std::string id, const tams_medicine_container_recognition::RecognizedObject& obj, moveit_msgs::CollisionObject& object) {
 
       // add mesh to object
       collisionObjectFromResource(object, id, BOTTLE_MESH);
@@ -153,7 +153,7 @@ class BottleActionServer
 
     void execute_cb(const tams_bartender_msgs::DetectBottlesGoalConstPtr &goal)
     {
-      tams_bartender_recognition::SegmentationSwitch srv;
+      tams_medicine_container_recognition::SegmentationSwitch srv;
       srv.request.enabled = true;
       srv.request.header.stamp = ros::Time::now();
       if (!segmentation_client_.call(srv))
@@ -213,7 +213,7 @@ class BottleActionServer
     ros::NodeHandle pnh("~");
     camera_frame_ = pnh.param<std::string>("camera_frame", "xtion_rgb_optical_frame");
 
-    segmentation_client_ = nh_.serviceClient<tams_bartender_recognition::SegmentationSwitch>("object_segmentation_switch");
+    segmentation_client_ = nh_.serviceClient<tams_medicine_container_recognition::SegmentationSwitch>("object_segmentation_switch");
     object_pose_sub = nh_.subscribe("object_poses", 1, &BottleActionServer::object_pose_cb, this);
     marker_pub_ = nh_.advertise<visualization_msgs::Marker> ("/detected_bottles", 1);
 

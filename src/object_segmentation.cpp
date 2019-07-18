@@ -43,9 +43,9 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
 
-#include <tams_bartender_recognition/SegmentedObject.h>
-#include <tams_bartender_recognition/SegmentedObjectArray.h>
-#include <tams_bartender_recognition/SegmentationSwitch.h>
+#include <tams_medicine_container_recognition/SegmentedObject.h>
+#include <tams_medicine_container_recognition/SegmentedObjectArray.h>
+#include <tams_medicine_container_recognition/SegmentationSwitch.h>
 
 
 struct BoundingBox {
@@ -481,7 +481,7 @@ void callback (const pcl::PCLPointCloud2ConstPtr& cloud_pcl2) {
   std::vector<pcl::PointIndices> cluster_indices;
   extractClusters(surfaceVoxels, cluster_indices);
 
-  tams_bartender_recognition::SegmentedObjectArray objects;
+  tams_medicine_container_recognition::SegmentedObjectArray objects;
   visualization_msgs::MarkerArray object_markers;
   objects.header.frame_id = surface_frame_;
   objects.header.stamp = ros::Time::now();
@@ -557,7 +557,7 @@ void callback (const pcl::PCLPointCloud2ConstPtr& cloud_pcl2) {
     //  continue;
     }
     */
-    tams_bartender_recognition::SegmentedObject object_msg;
+    tams_medicine_container_recognition::SegmentedObject object_msg;
 
     // basic object parameters
     double x = min_x + (max_x - min_x) / 2.0;
@@ -642,8 +642,8 @@ void callback (const pcl::PCLPointCloud2ConstPtr& cloud_pcl2) {
   }
 }
 
-bool switch_cb(tams_bartender_recognition::SegmentationSwitch::Request  &req,
-    tams_bartender_recognition::SegmentationSwitch::Response &res)
+bool switch_cb(tams_medicine_container_recognition::SegmentationSwitch::Request  &req,
+    tams_medicine_container_recognition::SegmentationSwitch::Response &res)
 {
   // ignore if switch is already set to requested value
   if (enabled == req.enabled) {
@@ -668,7 +668,7 @@ bool switch_cb(tams_bartender_recognition::SegmentationSwitch::Request  &req,
 int main (int argc, char** argv)
 {
   // Initialize ROS
-  ros::init (argc, argv, "tams_bartender_recognition");
+  ros::init (argc, argv, "tams_medicine_container_recognition");
   ros::NodeHandle nh;
   ros::NodeHandle pnh("~");
 
@@ -684,7 +684,7 @@ int main (int argc, char** argv)
   surface_pub = nh.advertise<sensor_msgs::PointCloud2> ("/segmented_surface", 1);
   clusters_pub = nh.advertise<sensor_msgs::PointCloud2> ("/extracted_clusters", 1);
   cyl_marker_pub = nh.advertise<visualization_msgs::MarkerArray> ("cylinders", 1);
-  objects_pub = nh.advertise<tams_bartender_recognition::SegmentedObjectArray>("/segmented_objects", 1);
+  objects_pub = nh.advertise<tams_medicine_container_recognition::SegmentedObjectArray>("/segmented_objects", 1);
   object_image_pub = nh.advertise<sensor_msgs::Image>("/object_image", 1);
 
   // Create a ROS subscriber for the input point cloud

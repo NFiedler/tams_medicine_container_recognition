@@ -10,7 +10,7 @@
 		<param name="version" value="1"/>
 	</node-->
 
-	<node pkg='tams_bartender_recognition' type='object_segmentation' name='object_segmentation' output='screen'>
+	<node pkg='tams_medicine_container_recognition' type='object_segmentation' name='object_segmentation' output='screen'>
 		<param name="enabled" value="$(arg always_enabled)"/>
 		<param name="point_cloud_topic" value="$(arg point_cloud_topic)"/>
 		<param name="surface_frame" value="$(arg surface_frame)"/>
